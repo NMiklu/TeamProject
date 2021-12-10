@@ -345,19 +345,17 @@ void print_instruction(){
 	printf("\n");
 }
 
-void print_state()
-{
-  printf("Data: ");
-  for (int i = 0; i < 32; ++i) {
-    printf("%d ", binary_to_integer(MEM_Data[i]));
-  } 
-  printf("\n");  
-  
-  printf("Register: ");
-  for (int i = 0; i < 32; ++i) {
-    printf("%d ", binary_to_integer(MEM_Register[i]));
-  } 
-  printf("\n");
+void print_state(){
+	printf("Data: ");
+	for (int i = 0; i < 32; ++i) {
+		printf("%d ", binary_to_integer(MEM_Data[i]));
+	} 
+	printf("\n");  
+	printf("Register: ");
+	for (int i = 0; i < 32; ++i) {
+		printf("%d ", binary_to_integer(MEM_Register[i]));
+	} 
+	printf("\n");
 }
 
 
