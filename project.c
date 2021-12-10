@@ -522,6 +522,32 @@ void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less,
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
 	// TODO: Implement 32-bit ALU
 	// Input: 4-bit ALUControl, two 32-bit inputs
+	*Zero = FALSE;
+	BIT op0 = ALUControl[0];
+	BIT op1 = ALUControl[1];
+	BIT binvert = ALUControl[2];
+	BIT c_in = ALUControl[3];
+
+	BIT set = FALSE;
+	BIT empty = FALSE;
+
+	BIT c = FALSE;
+	BIT* c_out = &c;
+
+	*c_out = c_in;
+	for(int i = 0; i < 32; i++){
+		ALU1(Input1[i], Input2[i], binvert, *c_out, FALSE, op0, op1, &Result[i], c_out, &set);
+	}
+
+	*c_out = not_gate(c_in);
+	for(int i = 0; i < 32; i++){
+		ALU1(Input1[i], Input2[i], not_gate(binvert), *c_out, FALSE, op0, op1, &empty, c_out, &set);
+	}
+
+	ALU1(Input1[0], Input2[0], not_gate(binvert), not_gate(c_in), set, op0, op1, &empty, c_out, &set);
+
+	Result[0] = multiplexor2(and_gate(op0, op1), Result[0], empty);
+
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
 }
