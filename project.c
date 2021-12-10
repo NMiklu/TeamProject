@@ -533,7 +533,7 @@ void ALU1(BIT A, BIT B, BIT CarryIn, BIT Less,
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
 	// TODO: Implement 32-bit ALU
 	// Input: 4-bit ALUControl, two 32-bit inputs
-	
+	//  hiufif
 
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
