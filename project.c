@@ -488,7 +488,7 @@ void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData){  // niko
 	// Note: Implementation will again be similar to those above
 
 	BIT t[32] = {FALSE};
-	decoder5(WriteRegister,t);
+	decoder5(WriteRegister, t);
 	for(int j = 0; j < 32; j++){
 		multiplexor2_32(and_gate(RegWrite,t[j]), MEM_Register[j],WriteData,MEM_Register[j]);
 	}
