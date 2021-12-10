@@ -470,6 +470,15 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* 
 	// Input: two 5-bit register addresses
 	// Output: the values of the specified registers in ReadData1 and ReadData2
 	// Note: Implementation will be very similar to instruction memory circuit
+
+	BIT bit1[32] = {FALSE};
+	BIT bit2[32] = {FALSE};
+	decoder5(ReadRegister1, bit1);
+	decoder5(ReadRegister2, bit2);
+	for(int i = 0; i < 32; ++i){
+		multiplexor2_32(bit1[i], MEM_Register[i], ReadData1[j], MEM_Register[i]);
+		multiplexor2_32(bit2[i], MEM_Register[i], ReadData2[j], MEM_Register[i]);
+	}
 }
 
 void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData){  // niko
