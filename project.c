@@ -392,6 +392,38 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	// Input: opcode field from the instruction
 	// OUtput: all control lines get set 
 	// Note: Can use SOP or similar approaches to determine bits
+
+	// assigning all the bit values to each instruction
+	BIT lw = and_gate(and_gate3((OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])));
+	BIT sw = and_gate(and_gate3((OpCode[5]), not_gate(OpCode[4]), (OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])));
+	BIT beq = and_gate(and_gate3((OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
+	BIT addi = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), (OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
+	BIT and = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
+	BIT or = and_gate(and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
+	BIT add = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
+	BIT sub = and_gate(and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
+	BIT j = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), not_gate(OpCode[0])));
+	BIT jal = and_gate(and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
+	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
+
+	// assigning all the bit values to each instruction type
+	BIT R_TYPE = or_gate(or_gate(or_gate(and, or), or_gate(add, sub)), jr);
+	BIT I_TYPE = or_gate(or_gate(lw, sw), or_gate(beq, addi));
+	BIT J_TYPE = or_gate(j, jal);
+
+	// assigning control bit values
+	*RegDst = R_TYPE;
+	*Jump = J_TYPE; 
+	*Branch = beq;
+	*MemRead = lw;
+	*MemToReg = lw;
+	*MemWrite = sw;
+	*ALUSrc = I_TYPE;
+	*RegWrite = and_gate(not_gate(beq), not_gate(sw));
+	
+	// 
+	ALUOp[1] = R_TYPE;
+	ALUOp[0] = beq;
 }
 
 void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* ReadData2) { // isaac
