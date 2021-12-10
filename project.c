@@ -511,34 +511,18 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	// Note: Can use SOP or similar approaches to determine bits
 }
 
-void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less, 
-  BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
-{
-	//from lab6
-	BIT x0 = multiplexor2(Binvert, B, not_gate(B));
-	BIT y0 = and_gate(A, x0);
-	BIT y1 = or_gate(A, x0);
-	BIT y2 = FALSE;
-	adder1(A, x0, CarryIn, CarryOut, &y2); 
-	*Set = y2;
-	*Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
-}
+void ALU1(BIT A, BIT B, BIT CarryIn, BIT Less, 
+  BIT Op0, BIT Op1, BIT Op2, BIT Op4, BIT* Result, BIT* CarryOut, BIT* Set){
+	BIT x0 = and_gate(A, B);
+	BIT x1 = or_gate(A, B);
+	BIT x2;
+	adder1(A, B, CarryIn, CarryOut, &x2); 
+	*Set = x2;
 
-void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
-	// TODO: Implement 32-bit ALU
-	// Input: 4-bit ALUControl, two 32-bit inputs
-	*Zero = FALSE;
-	BIT op0 = ALUControl[0];
-	BIT op1 = ALUControl[1];
-	BIT binvert = ALUControl[2];
-	BIT c_in = ALUControl[3];
+	BIT x3;
+	adder1(A, not_gate(B), CarryIn, CarryOut, &x3);
 
-	BIT set = FALSE;
-	BIT empty = FALSE;
-
-	BIT c = FALSE;
-	BIT* c_out = &c;
-
+	BIT x4 = Less;
 	*c_out = c_in;
 	/*print_binary(Input1);
 	printf(" <- input 1\n");
@@ -551,7 +535,39 @@ void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  //
 	printf(" <- Result\n");*/
 
 	Result[0] = multiplexor2(and_gate(op0, op1), Result[0], set);
+	BIT x5 = not_gate(x2);
 
+	*Result = multiplexor4(Op1, Op2, multiplexor2(Op4, x0, x1), x5, x2, multiplexor2(Op4, x3, x4));
+}
+
+void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
+	// TODO: Implement 32-bit ALU
+	// Input: 4-bit ALUControl, two 32-bit input
+	*Zero = FALSE;
+	BIT CarryIn = ALUControl[3];
+	BIT Binvert = ALUControl[2];
+	BIT Op1 = ALUControl[1];
+	BIT Op0 = ALUControl[0];
+
+	BIT Set = FALSE;
+	BIT EMPTY = FALSE;
+
+	BIT C = FALSE;
+	BIT* CarryOut = &C;
+
+	*CarryOut = CarryIn;
+	for(int i = 0; i < 32; i++){
+	ALU1(Input1[i], Input2[i], Binvert, *CarryOut, FALSE, Op0, Op1, &Result[i], CarryOut, &Set);
+	}
+
+	*CarryOut = not_gate(CarryIn);
+	for(int i = 0; i < 32; i++){
+	ALU1(Input1[i], Input2[i], not_gate(Binvert), *CarryOut, FALSE, Op0, Op1, &EMPTY, CarryOut, &Set);
+	}
+
+	ALU1(Input1[0], Input2[0], not_gate(Binvert), not_gate(CarryIn), Set, Op0, Op1, &EMPTY, CarryOut, &Set);
+
+	Result[0] = multiplexor2(and_gate(Op0, Op1), Result[0], EMPTY);
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
 }
