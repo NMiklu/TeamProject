@@ -286,7 +286,7 @@ void set_opcode(char* input, char* opcode ,char* funct) {
 int get_instructions(BIT Instructions[][32]){
 	char line[256] = {0};
 	int instruction_count = 0;
-	while (fgets(line, 256, stdin) != NULL) {        
+	while (fgets(line, 256, stdin) != NULL) {
   		// TODO: perform conversion of instructions to binary
     	// Input: coming from stdin via: ./a.out < input.txt
     	// Output: Convert instructions to binary in the instruction memory
@@ -492,18 +492,31 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	// TODO: Implement ALU Control circuit
 	// Input: 2-bit ALUOp from main control circuit, 6-bit funct field from the
 	//        binary instruction
-	BIT add = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-	BIT sub = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-	BIT or = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-  BIT sll = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
+	BIT a_BIT = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
+	BIT s_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
+	BIT o_BIT = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
+  	BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
 
-  ALUControl[0] = or_gate(sll, or);
-  ALUControl[1] = or_gate(or_gate3(add, sub, sll), not_gate(ALUOp[1]));
-  ALUControl[2] = or_gate3(sub, sll, ALUOp[0]);
-  ALUControl[3] = 0;
+	ALUControl[0] = or_gate(sll_BIT, o_BIT);
+	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
+	ALUControl[2] = or_gate3(sll_BIT, sll_BIT, ALUOp[0]);
+	ALUControl[3] = 0;
 
 	// Output:4-bit ALUControl for input into the ALU
 	// Note: Can use SOP or similar approaches to determine bits
+}
+
+void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less, 
+  BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
+{
+	//from lab6
+  BIT x0 = multiplexor2(Binvert, B, not_gate(B));
+  BIT y0 = and_gate(A, x0);
+  BIT y1 = or_gate(A, x0);
+  BIT y2 = FALSE;
+  adder1(A, x0, CarryIn, CarryOut, &y2); 
+  *Set = y2;
+  *Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
 }
 
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
