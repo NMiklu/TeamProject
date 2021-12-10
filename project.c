@@ -45,8 +45,8 @@ BIT nor_gate(BIT A, BIT B);
 BIT nand_gate(BIT A, BIT B);
 
 void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3);
-void decoder3(BIT* I, BIT EN, BIT* O); // added for ease of use
-void decoder5(BIT* I, BIT* O); // added for ease of use
+void decoder3(BIT* I, BIT EN, BIT* O); // added for use in decoder5
+void decoder5(BIT* I, BIT* O); // added for read_register and instruction_memory
 BIT multiplexor2(BIT S, BIT I0, BIT I1);
 void multiplexor2_32(BIT S, BIT* I0, BIT* I1, BIT* Output);
 BIT multiplexor4(BIT S0, BIT S1, BIT I0, BIT I1, BIT I2, BIT I3);
@@ -121,7 +121,7 @@ void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3){
 	return;
 }
 
-void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
+void decoder3(BIT* I, BIT EN, BIT* O) { // added to build decoder5
 	O[0] = and_gate3(not_gate(I[2]), not_gate(I[1]), not_gate(I[0]));
 	O[1] = and_gate3(not_gate(I[2]), not_gate(I[1]), I[0]);
 	O[2] = and_gate3(not_gate(I[2]), I[1], not_gate(I[0]));
@@ -143,7 +143,7 @@ void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
 	return;
 }
 
-void decoder5(BIT* I, BIT* O) { // added by us
+void decoder5(BIT* I, BIT* O) {  // added for read_register and instruction_memory
 	BIT EN[4] = {FALSE};
 	decoder2(I[3], I[4], &EN[0], &EN[1], &EN[2], &EN[3]);
 	decoder3(I, EN[3], &O[24]);
