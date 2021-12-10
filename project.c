@@ -419,7 +419,11 @@ void Instruction_Memory(BIT* ReadAddress, BIT* Instruction){ // isaac
 	// Output: 32-bit binary instruction
 	// Note: Useful to use a 5-to-32 decoder here
 
-
+	BIT instruction_out[32] = {FALSE};
+	decoder5(ReadAddress, instruction_out);
+	for (int i = 0; i < 32; ++i) {
+		multiplexor2_32(instruction_out[i], Instruction, MEM_Instruction[i], Instruction);
+	}
 }
 
 void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT* MemToReg, BIT* ALUOp, BIT* MemWrite, BIT* ALUSrc, BIT* RegWrite){ // isaac
