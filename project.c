@@ -540,18 +540,17 @@ void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  //
 	BIT* c_out = &c;
 
 	*c_out = c_in;
+	/*print_binary(Input1);
+	printf(" <- input 1\n");
+	print_binary(Input2);
+	printf(" <- input 2\n");*/
 	for(int i = 0; i < 32; i++){
-		ALU1(Input1[i], Input2[i], binvert, *c_out, FALSE, op0, op1, &Result[i], c_out, &set);
+		ALU1(Input1[i], Input2[i], binvert, *c_out, FALSE, op0, op1, &(Result[i]), c_out, &set);
 	}
+	/*print_binary(Result);
+	printf(" <- Result\n");*/
 
-	*c_out = not_gate(c_in);
-	for(int i = 0; i < 32; i++){
-		ALU1(Input1[i], Input2[i], not_gate(binvert), *c_out, FALSE, op0, op1, &empty, c_out, &set);
-	}
-
-	ALU1(Input1[0], Input2[0], not_gate(binvert), not_gate(c_in), set, op0, op1, &empty, c_out, &set);
-
-	Result[0] = multiplexor2(and_gate(op0, op1), Result[0], empty);
+	Result[0] = multiplexor2(and_gate(op0, op1), Result[0], set);
 
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
