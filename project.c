@@ -45,6 +45,8 @@ BIT nor_gate(BIT A, BIT B);
 BIT nand_gate(BIT A, BIT B);
 
 void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3);
+void decoder3(BIT* I, BIT EN, BIT* O); // added for ease of use
+void decoder5(BIT* I, BIT* O); // added for ease of use
 BIT multiplexor2(BIT S, BIT I0, BIT I1);
 void multiplexor2_32(BIT S, BIT* I0, BIT* I1, BIT* Output);
 BIT multiplexor4(BIT S0, BIT S1, BIT I0, BIT I1, BIT I2, BIT I3);
@@ -117,6 +119,37 @@ void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3){
 	*O2 = and_gate(I1, not_gate(I0));
 	*O3 = and_gate(I1, I0);
 	return;
+}
+
+void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
+	O[0] = and_gate3(not_gate(I[2]), not_gate(I[1]), not_gate(I[0]));
+	O[1] = and_gate3(not_gate(I[2]), not_gate(I[1]), I[0]);
+	O[2] = and_gate3(not_gate(I[2]), I[1], not_gate(I[0]));
+	O[3] = and_gate3(not_gate(I[2]), I[1], I[0]);
+	O[4] = and_gate3(I[2], not_gate(I[1]), not_gate(I[0]));
+	O[5] = and_gate3(I[2], not_gate(I[1]), I[0]);
+	O[6] = and_gate3(I[2], I[1], not_gate(I[0]));
+	O[7] = and_gate3(I[2], I[1], I[0]);
+	
+	O[0] = and_gate(EN, O[0]);
+	O[1] = and_gate(EN, O[1]);
+	O[2] = and_gate(EN, O[2]);
+	O[3] = and_gate(EN, O[3]);
+	O[4] = and_gate(EN, O[4]);
+	O[5] = and_gate(EN, O[5]);
+	O[6] = and_gate(EN, O[6]);
+	O[7] = and_gate(EN, O[7]);
+	
+	return;
+}
+
+void decoder5(BIT* I, BIT* O) { // added by us
+	BIT EN[4] = {FALSE};
+	decoder2(I[3], I[4], &EN[0], &EN[1], &EN[2], &EN[3]);
+	decoder3(I, EN[3], &O[24]);
+	decoder3(I, EN[2], &O[16]);
+	decoder3(I, EN[1], &O[8]);
+	decoder3(I, EN[0], &O[0]);
 }
 
 BIT multiplexor2(BIT S, BIT I0, BIT I1){
@@ -385,6 +418,12 @@ void Instruction_Memory(BIT* ReadAddress, BIT* Instruction){ // isaac
 	// Input: 32-bit instruction address
 	// Output: 32-bit binary instruction
 	// Note: Useful to use a 5-to-32 decoder here
+
+	BIT instruction_out[32] = {FALSE};
+	decoder5(ReadAddress, instruction_out);
+	for (int i = 0; i < 32; ++i) {
+		multiplexor2_32(instruction_out[i], Instruction, MEM_Instruction[i], Instruction);
+	}
 }
 
 void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT* MemToReg, BIT* ALUOp, BIT* MemWrite, BIT* ALUSrc, BIT* RegWrite){ // isaac
@@ -407,19 +446,19 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
 
 	// assigning all the bit values to each instruction type
-	BIT R_TYPE = or_gate(or_gate(or_gate(and, or), or_gate(add, sub)), jr);
-	BIT I_TYPE = or_gate(or_gate(lw, sw), or_gate(beq, addi));
+	BIT R_TYPE = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
+	BIT I_TYPE = or_gate(or_gate(beq, addi), or_gate(lw, sw));
 	BIT J_TYPE = or_gate(j, jal);
 
 	// assigning control bit values
 	*RegDst = R_TYPE;
-	*Jump = J_TYPE; 
+	*Jump = J_TYPE;
 	*Branch = beq;
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
 	*ALUSrc = I_TYPE;
-	*RegWrite = and_gate(not_gate(beq), not_gate(sw));
+	*RegWrite = and_gate(not_gate(sw), not_gate(beq));
 	
 	// 
 	ALUOp[1] = R_TYPE;
@@ -431,6 +470,15 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* 
 	// Input: two 5-bit register addresses
 	// Output: the values of the specified registers in ReadData1 and ReadData2
 	// Note: Implementation will be very similar to instruction memory circuit
+
+	BIT bit1[32] = {FALSE};
+	BIT bit2[32] = {FALSE};
+	decoder5(ReadRegister1, bit1);
+	decoder5(ReadRegister2, bit2);
+	for(int i = 0; i < 32; ++i){
+		multiplexor2_32(bit1[i], MEM_Register[i], ReadData1[j], MEM_Register[i]);
+		multiplexor2_32(bit2[i], MEM_Register[i], ReadData2[j], MEM_Register[i]);
+	}
 }
 
 void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData){  // niko
@@ -476,11 +524,11 @@ void Extend_Sign16(BIT* Input, BIT* Output){
 	// TODO: Implement 16-bit to 32-bit sign extender
 	// Copy Input to Output 
 	for (int i = 0; i < 16; i++) {
-		output[i] = input[i];
+		Output[i] = Input[i];
 	}
 	// extend 16th Input bit to 17-32 bits in Output
 	for (int i = 16; i < 32; i++) {
-		output[i] = input[15];
+		Output[i] = Input[15];
 	}
 }
 
@@ -508,18 +556,18 @@ void updateState(){
 	BIT ALUResult = {FALSE};
 	BIT ALUIn2[32] = {FALSE}; 
 	multiplexor2_32(ALUSrc, ReadData2, imm, ALUIn2);
-	ALU(ALUControl, ReadData1, ALUIn2, &Zero, ALUResult);
+	ALU(ALUControl, ReadData1, ALUIn2, &Zero, &ALUResult);
 
 	// Memory - read/write data memory
 	BIT ReadData[32] = {FALSE};
-	Data_Memory(MemWrite, MemRead, ALUResult, ReadData2, ReadData);
+	Data_Memory(MemWrite, MemRead, &ALUResult, ReadData2, ReadData);
 
 	// Write Back - write to the register file
 	BIT WriteReg[5] = {FALSE};
 	multiplexor2_5(RegDst, &(inst[16]), &(inst[11]), WriteReg);
 	BIT WriteData[32] = {FALSE};
-	multiplexor2_32(MemToReg, ALUResult, ReadData, WriteData);
-	WriteRegister(RegWrite, WriteReg, WriteData);
+	multiplexor2_32(MemToReg, &ALUResult, ReadData, WriteData);
+	Write_Register(RegWrite, WriteReg, WriteData);
 
 	// Update PC - determine the final PC value for the next instruction
 	BIT PCAdd1[32] = {FALSE};
