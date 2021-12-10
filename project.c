@@ -45,6 +45,8 @@ BIT nor_gate(BIT A, BIT B);
 BIT nand_gate(BIT A, BIT B);
 
 void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3);
+void decoder3(BIT* I, BIT EN, BIT* O); // added for ease of use
+void decoder5(BIT* I, BIT* O); // added for ease of use
 BIT multiplexor2(BIT S, BIT I0, BIT I1);
 void multiplexor2_32(BIT S, BIT* I0, BIT* I1, BIT* Output);
 BIT multiplexor4(BIT S0, BIT S1, BIT I0, BIT I1, BIT I2, BIT I3);
@@ -117,6 +119,37 @@ void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3){
 	*O2 = and_gate(I1, not_gate(I0));
 	*O3 = and_gate(I1, I0);
 	return;
+}
+
+void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
+	O[0] = and_gate3(not_gate(I[2]), not_gate(I[1]), not_gate(I[0]));
+	O[1] = and_gate3(not_gate(I[2]), not_gate(I[1]), I[0]);
+	O[2] = and_gate3(not_gate(I[2]), I[1], not_gate(I[0]));
+	O[3] = and_gate3(not_gate(I[2]), I[1], I[0]);
+	O[4] = and_gate3(I[2], not_gate(I[1]), not_gate(I[0]));
+	O[5] = and_gate3(I[2], not_gate(I[1]), I[0]);
+	O[6] = and_gate3(I[2], I[1], not_gate(I[0]));
+	O[7] = and_gate3(I[2], I[1], I[0]);
+	
+	O[0] = and_gate(EN, O[0]);
+	O[1] = and_gate(EN, O[1]);
+	O[2] = and_gate(EN, O[2]);
+	O[3] = and_gate(EN, O[3]);
+	O[4] = and_gate(EN, O[4]);
+	O[5] = and_gate(EN, O[5]);
+	O[6] = and_gate(EN, O[6]);
+	O[7] = and_gate(EN, O[7]);
+	
+	return;
+}
+
+void decoder5(BIT* I, BIT* O) { // added by us
+	BIT EN[4] = {FALSE};
+	decoder2(I[3], I[4], &EN[0], &EN[1], &EN[2], &EN[3]);
+	decoder3(I, EN[3], &O[24]);
+	decoder3(I, EN[2], &O[16]);
+	decoder3(I, EN[1], &O[8]);
+	decoder3(I, EN[0], &O[0]);
 }
 
 BIT multiplexor2(BIT S, BIT I0, BIT I1){
@@ -385,6 +418,8 @@ void Instruction_Memory(BIT* ReadAddress, BIT* Instruction){ // isaac
 	// Input: 32-bit instruction address
 	// Output: 32-bit binary instruction
 	// Note: Useful to use a 5-to-32 decoder here
+
+
 }
 
 void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT* MemToReg, BIT* ALUOp, BIT* MemWrite, BIT* ALUSrc, BIT* RegWrite){ // isaac
@@ -407,19 +442,19 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
 
 	// assigning all the bit values to each instruction type
-	BIT R_TYPE = or_gate(or_gate(or_gate(and, or), or_gate(add, sub)), jr);
-	BIT I_TYPE = or_gate(or_gate(lw, sw), or_gate(beq, addi));
+	BIT R_TYPE = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
+	BIT I_TYPE = or_gate(or_gate(beq, addi), or_gate(lw, sw));
 	BIT J_TYPE = or_gate(j, jal);
 
 	// assigning control bit values
 	*RegDst = R_TYPE;
-	*Jump = J_TYPE; 
+	*Jump = J_TYPE;
 	*Branch = beq;
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
 	*ALUSrc = I_TYPE;
-	*RegWrite = and_gate(not_gate(beq), not_gate(sw));
+	*RegWrite = and_gate(not_gate(sw), not_gate(beq));
 	
 	// 
 	ALUOp[1] = R_TYPE;
