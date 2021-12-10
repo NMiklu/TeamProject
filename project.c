@@ -476,8 +476,8 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* 
 	decoder5(ReadRegister1, bit1);
 	decoder5(ReadRegister2, bit2);
 	for(int i = 0; i < 32; ++i){
-		multiplexor2_32(bit1[i], MEM_Register[i], ReadData1[i], MEM_Register[i]);
-		multiplexor2_32(bit2[i], MEM_Register[i], ReadData2[i], MEM_Register[i]);
+		multiplexor2_32(bit1[i], MEM_Register[i], &ReadData1[i], MEM_Register[i]);
+		multiplexor2_32(bit2[i], MEM_Register[i], &ReadData2[i], MEM_Register[i]);
 	}
 }
 
