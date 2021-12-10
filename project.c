@@ -498,11 +498,11 @@ void updateState(){
 	BIT ALUResult = {FALSE};
 	BIT ALUIn2[32] = {FALSE}; 
 	multiplexor2_32(ALUSrc, ReadData2, imm, ALUIn2);
-	ALU(ALUControl, ReadData1, ALUIn2, &Zero, ALUResult);
+	ALU(ALUControl, ReadData1, ALUIn2, &Zero, &ALUResult);
 
 	// Memory - read/write data memory
 	BIT ReadData[32] = {FALSE};
-	Data_Memory(MemWrite, MemRead, ALUResult, ReadData2, ReadData);
+	Data_Memory(MemWrite, MemRead, &ALUResult, ReadData2, ReadData);
 
 	// Write Back - write to the register file
 	BIT WriteReg[5] = {FALSE};
