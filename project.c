@@ -286,7 +286,7 @@ void set_opcode(char* input, char* opcode ,char* funct) {
 int get_instructions(BIT Instructions[][32]){
 	char line[256] = {0};
 	int instruction_count = 0;
-	while (fgets(line, 256, stdin) != NULL) {        
+	while (fgets(line, 256, stdin) != NULL) {
   		// TODO: perform conversion of instructions to binary
     	// Input: coming from stdin via: ./a.out < input.txt
     	// Output: Convert instructions to binary in the instruction memory
@@ -476,8 +476,8 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* 
 	decoder5(ReadRegister1, bit1);
 	decoder5(ReadRegister2, bit2);
 	for(int i = 0; i < 32; ++i){
-		multiplexor2_32(bit1[i], MEM_Register[i], ReadData1[i], MEM_Register[i]);
-		multiplexor2_32(bit2[i], MEM_Register[i], ReadData2[i], MEM_Register[i]);
+		multiplexor2_32(bit1[i], MEM_Register[i], &ReadData1[i], MEM_Register[i]);
+		multiplexor2_32(bit2[i], MEM_Register[i], &ReadData2[i], MEM_Register[i]);
 	}
 }
 
@@ -504,6 +504,19 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 
 	// Output:4-bit ALUControl for input into the ALU
 	// Note: Can use SOP or similar approaches to determine bits
+}
+
+void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less, 
+  BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
+{
+	//from lab6
+  BIT x0 = multiplexor2(Binvert, B, not_gate(B));
+  BIT y0 = and_gate(A, x0);
+  BIT y1 = or_gate(A, x0);
+  BIT y2 = FALSE;
+  adder1(A, x0, CarryIn, CarryOut, &y2); 
+  *Set = y2;
+  *Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
 }
 
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
