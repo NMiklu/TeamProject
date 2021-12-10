@@ -605,20 +605,20 @@ void updateState(){
 
 	// Execute - process ALU
 	ALU_Control(ALUOp, inst, ALUControl);
-	BIT ALUResult = {FALSE};
+	BIT ALUResult[32] = {FALSE};
 	BIT ALUIn2[32] = {FALSE}; 
 	multiplexor2_32(ALUSrc, ReadData2, imm, ALUIn2);
-	ALU(ALUControl, ReadData1, ALUIn2, &Zero, &ALUResult);
+	ALU(ALUControl, ReadData1, ALUIn2, &Zero, ALUResult);
 
 	// Memory - read/write data memory
 	BIT ReadData[32] = {FALSE};
-	Data_Memory(MemWrite, MemRead, &ALUResult, ReadData2, ReadData);
+	Data_Memory(MemWrite, MemRead, ALUResult, ReadData2, ReadData);
 
 	// Write Back - write to the register file
 	BIT WriteReg[5] = {FALSE};
 	multiplexor2_5(RegDst, &(inst[16]), &(inst[11]), WriteReg);
 	BIT WriteData[32] = {FALSE};
-	multiplexor2_32(MemToReg, &ALUResult, ReadData, WriteData);
+	multiplexor2_32(MemToReg, ALUResult, ReadData, WriteData);
 	Write_Register(RegWrite, WriteReg, WriteData);
 
 	// Update PC - determine the final PC value for the next instruction
