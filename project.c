@@ -446,22 +446,22 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
 
 	// assigning all the bit values to each instruction type
-	BIT R_TYPE = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
-	BIT I_TYPE = or_gate(or_gate(beq, addi), or_gate(lw, sw));
-	BIT J_TYPE = or_gate(j, jal);
+	BIT r_type = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
+	BIT i_type = or_gate(or_gate(beq, addi), or_gate(lw, sw));
+	BIT j_type = or_gate(j, jal);
 
 	// assigning control bit values
-	*RegDst = R_TYPE;
-	*Jump = J_TYPE;
+	*RegDst = r_type;
+	*Jump = j_type;
 	*Branch = beq;
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
-	*ALUSrc = I_TYPE;
+	*ALUSrc = i_type;
 	*RegWrite = and_gate(not_gate(sw), not_gate(beq));
 	
 	// assigning the operation bit values
-	ALUOp[1] = R_TYPE;
+	ALUOp[1] = r_type;
 	ALUOp[0] = beq;
 }
 
@@ -516,13 +516,13 @@ void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less,
   BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
 {
 	//from lab6
-  BIT x0 = multiplexor2(Binvert, B, not_gate(B));
-  BIT y0 = and_gate(A, x0);
-  BIT y1 = or_gate(A, x0);
-  BIT y2 = FALSE;
-  adder1(A, x0, CarryIn, CarryOut, &y2); 
-  *Set = y2;
-  *Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
+	BIT x0 = multiplexor2(Binvert, B, not_gate(B));
+	BIT y0 = and_gate(A, x0);
+	BIT y1 = or_gate(A, x0);
+	BIT y2 = FALSE;
+	adder1(A, x0, CarryIn, CarryOut, &y2); 
+	*Set = y2;
+	*Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
 }
 
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
