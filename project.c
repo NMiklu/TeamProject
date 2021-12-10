@@ -466,11 +466,11 @@ void Extend_Sign16(BIT* Input, BIT* Output){
 	// TODO: Implement 16-bit to 32-bit sign extender
 	// Copy Input to Output 
 	for (int i = 0; i < 16; i++) {
-		output[i] = input[i];
+		Output[i] = Input[i];
 	}
 	// extend 16th Input bit to 17-32 bits in Output
 	for (int i = 16; i < 32; i++) {
-		output[i] = input[15];
+		Output[i] = Input[15];
 	}
 }
 
