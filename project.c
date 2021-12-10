@@ -500,7 +500,7 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	BIT a_BIT = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT s_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT o_BIT = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-  BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
+  	BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
 
 	ALUControl[0] = or_gate(sll_BIT, o_BIT);
 	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
@@ -512,8 +512,7 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 }
 
 void ALU1(BIT A, BIT B, BIT CarryIn, BIT Less, 
-  BIT Op0, BIT Op1, BIT Op2, BIT Op4, BIT* Result, BIT* CarryOut, BIT* Set)
-{
+  BIT Op0, BIT Op1, BIT Op2, BIT Op4, BIT* Result, BIT* CarryOut, BIT* Set){
 	BIT x0 = and_gate(A, B);
 	BIT x1 = or_gate(A, B);
 	BIT x2;
