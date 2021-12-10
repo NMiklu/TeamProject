@@ -505,11 +505,11 @@ void Extend_Sign16(BIT* Input, BIT* Output){
 	// TODO: Implement 16-bit to 32-bit sign extender
 	// Copy Input to Output 
 	for (int i = 0; i < 16; i++) {
-		output[i] = input[i];
+		Output[i] = Input[i];
 	}
 	// extend 16th Input bit to 17-32 bits in Output
 	for (int i = 16; i < 32; i++) {
-		output[i] = input[15];
+		Output[i] = Input[15];
 	}
 }
 
@@ -574,23 +574,19 @@ void updateState(){
 /* Main */
 /******************************************************************************/
 
-int main()
-{
-  setbuf(stdout, NULL);
-    
-  // parse instructions into binary format
-  int counter = get_instructions(MEM_Instruction);
-  
-  // load program and run
-  copy_bits(ZERO, PC);
-  copy_bits(THIRTY_TWO, MEM_Register[29]);
-  
-  while (binary_to_integer(PC) < counter) {
-    print_instruction();
-    updateState();
-    print_state();
-  }
+int main(){
+	setbuf(stdout, NULL);
+	// parse instructions into binary format
+	int counter = get_instructions(MEM_Instruction);
+	// load program and run
+	copy_bits(ZERO, PC);
+	copy_bits(THIRTY_TWO, MEM_Register[29]);
 
-  return 0;
+	while (binary_to_integer(PC) < counter) {
+		print_instruction();
+		updateState();
+		print_state();
+	}
+	return 0;
 }
 
