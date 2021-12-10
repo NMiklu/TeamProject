@@ -501,7 +501,7 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	BIT a_BIT = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT s_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT o_BIT = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-  	BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
+  BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
 
 	ALUControl[0] = or_gate(sll_BIT, o_BIT);
 	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
@@ -512,22 +512,29 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	// Note: Can use SOP or similar approaches to determine bits
 }
 
-void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less, 
-  BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
+void ALU1(BIT A, BIT B, BIT CarryIn, BIT Less, 
+  BIT Op0, BIT Op1, BIT Op2, BIT Op4, BIT* Result, BIT* CarryOut, BIT* Set)
 {
-	//from lab6
-	BIT x0 = multiplexor2(Binvert, B, not_gate(B));
-	BIT y0 = and_gate(A, x0);
-	BIT y1 = or_gate(A, x0);
-	BIT y2 = FALSE;
-	adder1(A, x0, CarryIn, CarryOut, &y2); 
-	*Set = y2;
-	*Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
+	BIT x0 = and_gate(A, B);
+	BIT x1 = or_gate(A, B);
+	BIT x2;
+	adder1(A, B, CarryIn, CarryOut, &x2); 
+	*Set = x2;
+
+	BIT x3;
+	adder1(A, not_gate(B), CarryIn, CarryOut, &x3);
+
+	BIT x4 = Less;
+
+	BIT x5 = not_gate(x2);
+
+	*Result = multiplexor4(Op1, Op2, multiplexor2(Op4, x0, x1), x5, x2, multiplexor2(Op4, x3, x4));
 }
 
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
 	// TODO: Implement 32-bit ALU
 	// Input: 4-bit ALUControl, two 32-bit inputs
+	
 	*Zero = FALSE;
 	BIT op0 = ALUControl[0];
 	BIT op1 = ALUControl[1];
