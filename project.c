@@ -547,8 +547,8 @@ void updateState(){
 	BIT WriteReg[5] = {FALSE};
 	multiplexor2_5(RegDst, &(inst[16]), &(inst[11]), WriteReg);
 	BIT WriteData[32] = {FALSE};
-	multiplexor2_32(MemToReg, ALUResult, ReadData, WriteData);
-	WriteRegister(RegWrite, WriteReg, WriteData);
+	multiplexor2_32(MemToReg, &ALUResult, ReadData, WriteData);
+	Write_Register(RegWrite, WriteReg, WriteData);
 
 	// Update PC - determine the final PC value for the next instruction
 	BIT PCAdd1[32] = {FALSE};
