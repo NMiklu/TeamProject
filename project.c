@@ -537,6 +537,14 @@ void Data_Memory(BIT MemWrite, BIT MemRead, BIT* Address, BIT* WriteData, BIT* R
 	// Input: 32-bit address, control flags for read/write, and data to write
 	// Output: data read if processing a lw instruction
 	// Note: Implementation similar as above
+
+	BIT in[5] = {Address[27],Address[28],Address[29],Address[30],Address[31]};
+	BIT t[32] = {FALSE};
+	decoder5(in, t);
+	for(int i = 0; i < 32; i++){
+		multiplexor2_32(and_gate(t[i], MemWrite), MEM_Data[i], WriteData, MEM_Data[i]);
+		multiplexor2_32(and_gate(t[i], MemRead), ReadData, MEM_Data[i], ReadData);
+	}
 }
 
 void Extend_Sign16(BIT* Input, BIT* Output){
