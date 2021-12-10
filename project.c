@@ -45,8 +45,8 @@ BIT nor_gate(BIT A, BIT B);
 BIT nand_gate(BIT A, BIT B);
 
 void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3);
-void decoder3(BIT* I, BIT EN, BIT* O); // added for ease of use
-void decoder5(BIT* I, BIT* O); // added for ease of use
+void decoder3(BIT* I, BIT EN, BIT* O); // added for use in decoder5
+void decoder5(BIT* I, BIT* O); // added for read_register and instruction_memory
 BIT multiplexor2(BIT S, BIT I0, BIT I1);
 void multiplexor2_32(BIT S, BIT* I0, BIT* I1, BIT* Output);
 BIT multiplexor4(BIT S0, BIT S1, BIT I0, BIT I1, BIT I2, BIT I3);
@@ -121,7 +121,7 @@ void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3){
 	return;
 }
 
-void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
+void decoder3(BIT* I, BIT EN, BIT* O) { // added to build decoder5
 	O[0] = and_gate3(not_gate(I[2]), not_gate(I[1]), not_gate(I[0]));
 	O[1] = and_gate3(not_gate(I[2]), not_gate(I[1]), I[0]);
 	O[2] = and_gate3(not_gate(I[2]), I[1], not_gate(I[0]));
@@ -143,7 +143,7 @@ void decoder3(BIT* I, BIT EN, BIT* O) { // added by us
 	return;
 }
 
-void decoder5(BIT* I, BIT* O) { // added by us
+void decoder5(BIT* I, BIT* O) {  // added for read_register and instruction_memory
 	BIT EN[4] = {FALSE};
 	decoder2(I[3], I[4], &EN[0], &EN[1], &EN[2], &EN[3]);
 	decoder3(I, EN[3], &O[24]);
@@ -158,7 +158,7 @@ BIT multiplexor2(BIT S, BIT I0, BIT I1){
 	return or_gate(x0, x1);  
 }
 
-BIT multiplexor2_5(BIT S, BIT* I0, BIT* I1, BIT* Output){
+void multiplexor2_5(BIT S, BIT* I0, BIT* I1, BIT* Output){
 	for (int i = 0; i < 5; ++i) {
 		BIT x0 = and_gate(not_gate(S), I0[i]);
 		BIT x1 = and_gate(S, I1[i]);
@@ -406,10 +406,9 @@ void adder1(BIT A, BIT B, BIT CarryIn, BIT* CarryOut, BIT* Sum){
 }
 
 void adder_32(BIT* a, BIT* b, BIT* sum) {
-	BIT c_in = FALSE;
-	BIT c_out = FALSE;
+	BIT carry = FALSE;
 	for (int i = 0; i < 32; i++) {
-		adder1(a[i], b[i], c_in, &c_out, &(sum[i]));
+		adder1(a[i], b[i], carry, &carry, &(sum[i]));
 	}
 }
 
@@ -476,8 +475,8 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2, BIT* ReadData1, BIT* 
 	decoder5(ReadRegister1, bit1);
 	decoder5(ReadRegister2, bit2);
 	for(int i = 0; i < 32; ++i){
-		multiplexor2_32(bit1[i], MEM_Register[i], &ReadData1[i], MEM_Register[i]);
-		multiplexor2_32(bit2[i], MEM_Register[i], &ReadData2[i], MEM_Register[i]);
+		multiplexor2_32(bit1[i], ReadData1, MEM_Register[i], ReadData1);
+		multiplexor2_32(bit2[i], ReadData2, MEM_Register[i], ReadData2);
 	}
 }
 
@@ -488,7 +487,7 @@ void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData){  // niko
 	// Note: Implementation will again be similar to those above
 
 	BIT t[32] = {FALSE};
-	decoder5(WriteRegister,t);
+	decoder5(WriteRegister, t);
 	for(int j = 0; j < 32; j++){
 		multiplexor2_32(and_gate(RegWrite,t[j]), MEM_Register[j],WriteData,MEM_Register[j]);
 	}
