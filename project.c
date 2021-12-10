@@ -158,7 +158,7 @@ BIT multiplexor2(BIT S, BIT I0, BIT I1){
 	return or_gate(x0, x1);  
 }
 
-BIT multiplexor2_5(BIT S, BIT* I0, BIT* I1, BIT* Output){
+void multiplexor2_5(BIT S, BIT* I0, BIT* I1, BIT* Output){
 	for (int i = 0; i < 5; ++i) {
 		BIT x0 = and_gate(not_gate(S), I0[i]);
 		BIT x1 = and_gate(S, I1[i]);
