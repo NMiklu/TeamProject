@@ -406,10 +406,10 @@ void adder1(BIT A, BIT B, BIT CarryIn, BIT* CarryOut, BIT* Sum){
 }
 
 void adder_32(BIT* a, BIT* b, BIT* sum) {
-	BIT cin = FALSE;
-	BIT cout = FALSE;
+	BIT c_in = FALSE;
+	BIT c_out = FALSE;
 	for (int i = 0; i < 32; i++) {
-		adder1(a[i], b[i], cin, &cout, &(sum[i]));
+		adder1(a[i], b[i], c_in, &c_out, &(sum[i]));
 	}
 }
 
