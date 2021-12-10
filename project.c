@@ -406,10 +406,10 @@ void adder1(BIT A, BIT B, BIT CarryIn, BIT* CarryOut, BIT* Sum){
 }
 
 void adder_32(BIT* a, BIT* b, BIT* sum) {
-	BIT cin = FALSE;
-	BIT cout = FALSE;
+	BIT c_in = FALSE;
+	BIT c_out = FALSE;
 	for (int i = 0; i < 32; i++) {
-		adder1(a[i], b[i], cin, &cout, &(sum[i]));
+		adder1(a[i], b[i], c_in, &c_out, &(sum[i]));
 	}
 }
 
@@ -446,22 +446,22 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
 
 	// assigning all the bit values to each instruction type
-	BIT R_TYPE = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
-	BIT I_TYPE = or_gate(or_gate(beq, addi), or_gate(lw, sw));
-	BIT J_TYPE = or_gate(j, jal);
+	BIT r_type = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
+	BIT i_type = or_gate(or_gate(beq, addi), or_gate(lw, sw));
+	BIT j_type = or_gate(j, jal);
 
 	// assigning control bit values
-	*RegDst = R_TYPE;
-	*Jump = J_TYPE;
+	*RegDst = r_type;
+	*Jump = j_type;
 	*Branch = beq;
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
-	*ALUSrc = I_TYPE;
+	*ALUSrc = i_type;
 	*RegWrite = and_gate(not_gate(sw), not_gate(beq));
 	
 	// assigning the operation bit values
-	ALUOp[1] = R_TYPE;
+	ALUOp[1] = r_type;
 	ALUOp[0] = beq;
 }
 
@@ -486,6 +486,12 @@ void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData){  // niko
 	// Input: one 5-bit register address, data to write, and control bit
 	// Output: None, but will modify register file
 	// Note: Implementation will again be similar to those above
+
+	BIT t[32] = {FALSE};
+	decoder5(WriteRegister,t);
+	for(int j = 0; j < 32; j++){
+		multiplexor2_32(and_gate(RegWrite,t[j]), MEM_Register[j],WriteData,MEM_Register[j]);
+	}
 }
 
 void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
@@ -495,12 +501,12 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	BIT a_BIT = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT s_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT o_BIT = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-  BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
+  	BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
 
-  ALUControl[0] = or_gate(sll_BIT, o_BIT);
-  ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
-  ALUControl[2] = or_gate3(sll_BIT, sll_BIT, ALUOp[0]);
-  ALUControl[3] = 0;
+	ALUControl[0] = or_gate(sll_BIT, o_BIT);
+	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
+	ALUControl[2] = or_gate3(sll_BIT, sll_BIT, ALUOp[0]);
+	ALUControl[3] = 0;
 
 	// Output:4-bit ALUControl for input into the ALU
 	// Note: Can use SOP or similar approaches to determine bits
@@ -510,13 +516,13 @@ void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less,
   BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
 {
 	//from lab6
-  BIT x0 = multiplexor2(Binvert, B, not_gate(B));
-  BIT y0 = and_gate(A, x0);
-  BIT y1 = or_gate(A, x0);
-  BIT y2 = FALSE;
-  adder1(A, x0, CarryIn, CarryOut, &y2); 
-  *Set = y2;
-  *Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
+	BIT x0 = multiplexor2(Binvert, B, not_gate(B));
+	BIT y0 = and_gate(A, x0);
+	BIT y1 = or_gate(A, x0);
+	BIT y2 = FALSE;
+	adder1(A, x0, CarryIn, CarryOut, &y2); 
+	*Set = y2;
+	*Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
 }
 
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
@@ -557,6 +563,14 @@ void Data_Memory(BIT MemWrite, BIT MemRead, BIT* Address, BIT* WriteData, BIT* R
 	// Input: 32-bit address, control flags for read/write, and data to write
 	// Output: data read if processing a lw instruction
 	// Note: Implementation similar as above
+
+	BIT in[5] = {Address[27],Address[28],Address[29],Address[30],Address[31]};
+	BIT t[32] = {FALSE};
+	decoder5(in, t);
+	for(int i = 0; i < 32; i++){
+		multiplexor2_32(and_gate(t[i], MemWrite), MEM_Data[i], WriteData, MEM_Data[i]);
+		multiplexor2_32(and_gate(t[i], MemRead), ReadData, MEM_Data[i], ReadData);
+	}
 }
 
 void Extend_Sign16(BIT* Input, BIT* Output){
