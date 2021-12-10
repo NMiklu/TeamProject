@@ -506,6 +506,19 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	// Note: Can use SOP or similar approaches to determine bits
 }
 
+void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less, 
+  BIT Op0, BIT Op1, BIT* Result, BIT* CarryOut, BIT* Set)
+{
+	//from lab6
+  BIT x0 = multiplexor2(Binvert, B, not_gate(B));
+  BIT y0 = and_gate(A, x0);
+  BIT y1 = or_gate(A, x0);
+  BIT y2 = FALSE;
+  adder1(A, x0, CarryIn, CarryOut, &y2); 
+  *Set = y2;
+  *Result = multiplexor4(Op0, Op1, y0, y1, y2, Less);
+}
+
 void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
 	// TODO: Implement 32-bit ALU
 	// Input: 4-bit ALUControl, two 32-bit inputs
