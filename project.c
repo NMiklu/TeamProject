@@ -539,18 +539,20 @@ void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  //
 	BIT* CarryOut = &C;
 
 	*CarryOut = CarryIn;
+	/*print_binary(Input1);
+	printf(" <- Input 1\n");
+	print_binary(Input2);
+	printf(" <- Input 2\n");*/
 	for(int i = 0; i < 32; i++){
 		ALU1(Input1[i], Input2[i], Binvert, *CarryOut, FALSE, Op0, Op1, &(Result[i]), CarryOut, &Set);
 	}
-
-	*CarryOut = not_gate(CarryIn);
-	for(int i = 0; i < 32; i++){
-		ALU1(Input1[i], Input2[i], not_gate(Binvert), *CarryOut, FALSE, Op0, Op1, &EMPTY, CarryOut, &Set);
-	}
-
+	/*print_binary(Result);
+	printf(" <- Result\n");*/
+	/*
 	ALU1(Input1[0], Input2[0], not_gate(Binvert), not_gate(CarryIn), Set, Op0, Op1, &EMPTY, CarryOut, &Set);
 
-	Result[0] = multiplexor2(and_gate(Op0, Op1), Result[0], EMPTY);
+	Result[0] = multiplexor2(and_gate(Op0, Op1), Result[0], Set);
+	*/
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
 }
