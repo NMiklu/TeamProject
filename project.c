@@ -460,7 +460,7 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	*MemToReg = lw;
 	*MemWrite = sw;
 	*ALUSrc = i_type;
-	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), and_gate(not_gate(j), not_gate(jr)));
+	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), not_gate(j));
 	
 	// assigning the operation bit values
 	ALUOp[1] = r_type;
