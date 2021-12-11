@@ -324,7 +324,7 @@ int get_instructions(BIT Instructions[][32]){
       		strncpy(&temp_output[21], rs, 5);
       		strncpy(&temp_output[26], opcode, 6);     
     	// R-type 
-    	} else if (strcmp(inst, "jr") == 0 || strcmp(inst, "add") == 0 || strcmp(inst, "and") == 0 || strcmp(inst, "or") == 0 || strcmp(inst, "sub") == 0 || strcmp(inst, "slt") == 0) {
+    	} else if (strcmp(inst, "add") == 0 || strcmp(inst, "and") == 0 || strcmp(inst, "or") == 0 || strcmp(inst, "sub") == 0 || strcmp(inst, "slt") == 0) {
       		set_register(op1, rd);
       		set_register(op2, rs);
       		set_register(op3, rt);
@@ -342,6 +342,16 @@ int get_instructions(BIT Instructions[][32]){
       		set_opcode(inst, opcode, funct);
       		strncpy(&temp_output[0], address, 26);
       		strncpy(&temp_output[26], opcode, 6);      
+    	} else if (strcmp(inst, "jr") == 0) {
+    		set_register(op1, rs);
+    		set_opcode(inst, opcode, funct);
+    		char shamt[5] = {'0', '0', '0', '0', '0'};
+    		strncpy(&temp_output[0], funct, 6);
+    		strncpy(&temp_output[6], shamt, 5);
+    		strncpy(&temp_output[11], shamt, 5);
+    		strncpy(&temp_output[16], shamt, 5);
+    		strncpy(&temp_output[21], rs, 5);
+    		strncpy(&temp_output[26], opcode, 6); 
     	}
     
     	for (int i = 0; i < 32; ++i) Instructions[instruction_count][i] = (temp_output[i] == '1' ? TRUE : FALSE); 
@@ -447,22 +457,16 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT jal = and_gate(and_gate3((OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
 
-	// assigning all the bit values to each instruction type
-	BIT r_type = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
-	BIT i_type = or_gate(or_gate(beq, addi), or_gate(lw, sw));
-	BIT j_type = or_gate(j, jal);
-
-	// assigning control bit values
-	*RegDst = r_type;
-	*Jump = j_type;
+	// set up control bits
+	*RegDst = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
+	*Jump = or_gate(j, jal);
 	*Branch = beq;
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
-	*ALUSrc = i_type;
+	*ALUSrc = or_gate(or_gate(beq, addi), or_gate(lw, sw));
 	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), not_gate(j));
 	
-	// assigning the operation bit values
 	ALUOp[1] = r_type;
 	ALUOp[0] = beq;
 }
