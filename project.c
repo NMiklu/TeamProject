@@ -467,7 +467,7 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	*ALUSrc = or_gate(or_gate(beq, addi), or_gate(lw, sw));
 	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), not_gate(j));
 	
-	ALUOp[1] = r_type;
+	ALUOp[1] = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
 	ALUOp[0] = beq;
 }
 
