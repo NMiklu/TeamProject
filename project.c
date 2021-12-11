@@ -67,7 +67,7 @@ void Read_Register(BIT* ReadRegister1, BIT* ReadRegister2,
   BIT* ReadData1, BIT* ReadData2);
 void Write_Register(BIT RegWrite, BIT* WriteRegister, BIT* WriteData);
 void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl);
-void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result);
+void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Result);
 void Data_Memory(BIT MemWrite, BIT MemRead, 
   BIT* Address, BIT* WriteData, BIT* ReadData);
 void Extend_Sign16(BIT* Input, BIT* Output);
@@ -314,7 +314,7 @@ int get_instructions(BIT Instructions[][32]){
     	char opcode[7] = {0};
     	char funct[7] = {0};
     	// I-type
-    	if (strcmp(inst, "lw") == 0 || strcmp(inst, "sw") == 0 || strcmp(inst, "beq") == 0 || strcmp(inst, "addi") == 0) {
+    	if (strcmp(inst, "lw") == 0 || strcmp(inst, "sw") == 0 || strcmp(inst, "addi") == 0) {
     		convert_to_binary_char(atoi(op3), imm, 16);
       		set_register(op1, rt);
       		set_register(op2, rs);
@@ -352,6 +352,15 @@ int get_instructions(BIT Instructions[][32]){
     		strncpy(&temp_output[16], shamt, 5);
     		strncpy(&temp_output[21], rs, 5);
     		strncpy(&temp_output[26], opcode, 6); 
+    	} else if (strcmp(inst, "beq") == 0) {
+    		convert_to_binary_char(atoi(op3), imm, 16);
+    		set_register(op1, rs);
+    		set_register(op2, rt);
+    		set_opcode(inst, opcode, funct);
+    		strncpy(&temp_output[0], imm, 16);
+    		strncpy(&temp_output[16], rt, 5);
+    		strncpy(&temp_output[21], rs, 5);
+    		strncpy(&temp_output[26], opcode, 6);  
     	}
     
     	for (int i = 0; i < 32; ++i) Instructions[instruction_count][i] = (temp_output[i] == '1' ? TRUE : FALSE); 
@@ -456,7 +465,6 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	BIT j = and_gate(and_gate3(not_gate(OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
 	BIT jal = and_gate(and_gate3((OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
 	BIT jr = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
-
 	// set up control bits
 	*RegDst = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
 	*Jump = or_gate(j, jal);
@@ -464,7 +472,7 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	*MemRead = lw;
 	*MemToReg = lw;
 	*MemWrite = sw;
-	*ALUSrc = or_gate(or_gate(beq, addi), or_gate(lw, sw));
+	*ALUSrc = or_gate(addi, or_gate(lw, sw));
 	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), not_gate(j));
 	
 	ALUOp[1] = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
@@ -534,7 +542,7 @@ void ALU1(BIT A, BIT B, BIT Binvert, BIT CarryIn, BIT Less,
 	*Set = y2;
 }
 
-void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  // curtis   
+void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Result){  // curtis   
 	// TODO: Implement 32-bit ALU
 	// Input: 4-bit ALUControl, two 32-bit input
 	BIT op0 = ALUControl[0];
@@ -542,7 +550,7 @@ void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  //
 	BIT binvert = ALUControl[2];
 	BIT c_in = ALUControl[3];
 	
-	*Zero = FALSE;
+	Zero = TRUE;
 	BIT set = FALSE;
 	BIT c = FALSE;
 
@@ -552,6 +560,7 @@ void ALU(BIT* ALUControl, BIT* Input1, BIT* Input2, BIT* Zero, BIT* Result){  //
 	ALU1(Input1[0], Input2[0], binvert, binvert, FALSE, op0, op1, &(Result[0]), c_out, &set);
 	for(int i = 1; i < 32; i++){
 		ALU1(Input1[i], Input2[i], binvert, *c_out, FALSE, op0, op1, &(Result[i]), c_out, &set);
+		Zero = multiplexor2(Result[i], Zero, FALSE);
 	}
 	// Output: 32-bit result, and zero flag big
 	// Note: Can re-use prior implementations (but need new circuitry for zero)
@@ -608,7 +617,7 @@ void updateState(){
 	BIT ALUResult[32] = {FALSE};
 	BIT ALUIn2[32] = {FALSE}; 
 	multiplexor2_32(ALUSrc, ReadData2, imm, ALUIn2);
-	ALU(ALUControl, ReadData1, ALUIn2, &Zero, ALUResult);
+	ALU(ALUControl, ReadData1, ALUIn2, ALUResult);
 
 	// Memory - read/write data memory
 	BIT ReadData[32] = {FALSE};
