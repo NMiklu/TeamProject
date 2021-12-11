@@ -419,7 +419,9 @@ void Instruction_Memory(BIT* ReadAddress, BIT* Instruction){ // isaac
 	// Note: Useful to use a 5-to-32 decoder here
 
 	BIT instruction_out[32] = {FALSE};
+	// using the 5 decoder to determine what instruction we want
 	decoder5(ReadAddress, instruction_out);
+	// updating the instruction output
 	for (int i = 0; i < 32; ++i) {
 		multiplexor2_32(instruction_out[i], Instruction, MEM_Instruction[i], Instruction);
 	}
