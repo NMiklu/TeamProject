@@ -504,8 +504,8 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 
 	ALUControl[0] = or_gate(sll_BIT, o_BIT);
 	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
-	ALUControl[2] = or_gate3(sll_BIT, sll_BIT, ALUOp[0]);
-	ALUControl[3] = 0;
+	ALUControl[2] = or_gate3(s_BIT, sll_BIT, ALUOp[0]);
+	ALUControl[3] = FALSE;
 
 	// Output:4-bit ALUControl for input into the ALU
 	// Note: Can use SOP or similar approaches to determine bits
