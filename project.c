@@ -552,7 +552,7 @@ void Data_Memory(BIT MemWrite, BIT MemRead, BIT* Address, BIT* WriteData, BIT* R
 	// Output: data read if processing a lw instruction
 	// Note: Implementation similar as above
 
-	BIT in[5] = {Address[27],Address[28],Address[29],Address[30],Address[31]};
+	BIT in[5] = {Address[0],Address[1],Address[2],Address[3],Address[4]};
 	BIT t[32] = {FALSE};
 	decoder5(in, t);
 	for(int i = 0; i < 32; i++){
