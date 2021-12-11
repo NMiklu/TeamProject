@@ -460,7 +460,7 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	*MemToReg = lw;
 	*MemWrite = sw;
 	*ALUSrc = i_type;
-	*RegWrite = and_gate(not_gate(sw), not_gate(beq));
+	*RegWrite = and_gate3(not_gate(sw), not_gate(beq), and_gate(not_gate(j), not_gate(jr)));
 	
 	// assigning the operation bit values
 	ALUOp[1] = r_type;
@@ -612,14 +612,20 @@ void updateState(){
 
 	// Write Back - write to the register file
 	BIT WriteReg[5] = {FALSE};
+	BIT ra[5] = {TRUE, TRUE, TRUE, TRUE, TRUE};
 	multiplexor2_5(RegDst, &(inst[16]), &(inst[11]), WriteReg);
+	multiplexor2_5(Jump, WriteReg, ra, WriteReg);
 	BIT WriteData[32] = {FALSE};
 	multiplexor2_32(MemToReg, ALUResult, ReadData, WriteData);
+
+	BIT PCAdd1[32] = {FALSE};
+	adder_32(PC, ONE, PCAdd1);
+	// need to add this extra mux to check if we're doing a jal command, so we can save our ra in a register
+	multiplexor2_32(Jump, WriteData, PCAdd1, WriteData);
 	Write_Register(RegWrite, WriteReg, WriteData);
 
 	// Update PC - determine the final PC value for the next instruction
-	BIT PCAdd1[32] = {FALSE};
-	adder_32(PC, ONE, PCAdd1);
+	
 	BIT PCAddImm[32] = {FALSE};
 	adder_32(PCAdd1, imm, PCAddImm);
 	BIT PCChoice1[32] = {FALSE};
