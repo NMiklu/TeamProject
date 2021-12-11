@@ -188,7 +188,6 @@ BIT multiplexor4(BIT S0, BIT S1, BIT I0, BIT I1, BIT I2, BIT I3){
 	return or_gate(z0, z1);  
 }
 
-
 /********************/
 /* Helper functions */
 /********************/
@@ -353,7 +352,6 @@ int get_instructions(BIT Instructions[][32]){
     		strncpy(&temp_output[21], rs, 5);
     		strncpy(&temp_output[26], opcode, 6); 
     	}
-    
     	for (int i = 0; i < 32; ++i) Instructions[instruction_count][i] = (temp_output[i] == '1' ? TRUE : FALSE); 
     	instruction_count++;
   	}
