@@ -1,5 +1,5 @@
 j 2
-add t0 t0 t0
+j 10000
 addi a0 zero 10
 jal 5
 j 10000
