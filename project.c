@@ -121,7 +121,7 @@ void decoder2(BIT I0, BIT I1, BIT* O0, BIT* O1, BIT* O2, BIT* O3){
 	return;
 }
 
-void decoder3(BIT* I, BIT EN, BIT* O) { // added to build decoder5
+void decoder3(BIT* I, BIT ENABLE, BIT* O) { // added to build decoder5
 	O[0] = and_gate3(not_gate(I[2]), not_gate(I[1]), not_gate(I[0]));
 	O[1] = and_gate3(not_gate(I[2]), not_gate(I[1]), I[0]);
 	O[2] = and_gate3(not_gate(I[2]), I[1], not_gate(I[0]));
@@ -131,25 +131,25 @@ void decoder3(BIT* I, BIT EN, BIT* O) { // added to build decoder5
 	O[6] = and_gate3(I[2], I[1], not_gate(I[0]));
 	O[7] = and_gate3(I[2], I[1], I[0]);
 	
-	O[0] = and_gate(EN, O[0]);
-	O[1] = and_gate(EN, O[1]);
-	O[2] = and_gate(EN, O[2]);
-	O[3] = and_gate(EN, O[3]);
-	O[4] = and_gate(EN, O[4]);
-	O[5] = and_gate(EN, O[5]);
-	O[6] = and_gate(EN, O[6]);
-	O[7] = and_gate(EN, O[7]);
+	O[0] = and_gate(ENABLE, O[0]);
+	O[1] = and_gate(ENABLE, O[1]);
+	O[2] = and_gate(ENABLE, O[2]);
+	O[3] = and_gate(ENABLE, O[3]);
+	O[4] = and_gate(ENABLE, O[4]);
+	O[5] = and_gate(ENABLE, O[5]);
+	O[6] = and_gate(ENABLE, O[6]);
+	O[7] = and_gate(ENABLE, O[7]);
 	
 	return;
 }
 
 void decoder5(BIT* I, BIT* O) {  // added for read_register and instruction_memory
-	BIT EN[4] = {FALSE};
-	decoder2(I[3], I[4], &EN[0], &EN[1], &EN[2], &EN[3]);
-	decoder3(I, EN[3], &O[24]);
-	decoder3(I, EN[2], &O[16]);
-	decoder3(I, EN[1], &O[8]);
-	decoder3(I, EN[0], &O[0]);
+	BIT ENABLE[4] = {FALSE};
+	decoder2(I[3], I[4], &ENABLE[0], &ENABLE[1], &ENABLE[2], &ENABLE[3]);
+	decoder3(I, ENABLE[3], &O[24]);
+	decoder3(I, ENABLE[2], &O[16]);
+	decoder3(I, ENABLE[1], &O[8]);
+	decoder3(I, ENABLE[0], &O[0]);
 }
 
 BIT multiplexor2(BIT S, BIT I0, BIT I1){
@@ -353,21 +353,21 @@ int get_instructions(BIT Instructions[][32]){
 /******************************************************************************/
 /* Program state - memory spaces, PC, and control */
 /******************************************************************************/
-BIT PC[32]                  = {FALSE};
+BIT PC[32] = {FALSE};
 BIT MEM_Instruction[32][32] = {FALSE};
-BIT MEM_Data[32][32]        = {FALSE};
-BIT MEM_Register[32][32]    = {FALSE};
+BIT MEM_Data[32][32] = {FALSE};
+BIT MEM_Register[32][32] = {FALSE};
 
-BIT RegDst    = FALSE;
-BIT Jump      = FALSE;
-BIT Branch    = FALSE;
-BIT MemRead   = FALSE;
-BIT MemToReg  = FALSE;
-BIT ALUOp[2]  = {FALSE};
-BIT MemWrite  = FALSE;
-BIT ALUSrc    = FALSE;
-BIT RegWrite  = FALSE;
-BIT Zero      = FALSE;
+BIT RegDst = FALSE;
+BIT Jump = FALSE;
+BIT Branch = FALSE;
+BIT MemRead = FALSE;
+BIT MemToReg = FALSE;
+BIT ALUOp[2] = {FALSE};
+BIT MemWrite = FALSE;
+BIT ALUSrc = FALSE;
+BIT RegWrite = FALSE;
+BIT Zero = FALSE;
 BIT ALUControl[4] = {FALSE};
 
 void print_instruction(){
