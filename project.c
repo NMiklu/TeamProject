@@ -435,17 +435,17 @@ void Control(BIT* OpCode, BIT* RegDst, BIT* Jump, BIT* Branch, BIT* MemRead, BIT
 	// Note: Can use SOP or similar approaches to determine bits
 
 	// assigning all the bit values to each instruction
-	BIT lw = and_gate(and_gate3((OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])));
-	BIT sw = and_gate(and_gate3((OpCode[5]), not_gate(OpCode[4]), (OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])));
-	BIT beq = and_gate(and_gate3((OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
-	BIT addi = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), (OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
-	BIT and = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
-	BIT or = and_gate(and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
-	BIT add = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
-	BIT sub = and_gate(and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
-	BIT j = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), (OpCode[1]), not_gate(OpCode[0])));
-	BIT jal = and_gate(and_gate3(not_gate(OpCode[2]), (OpCode[1]), (OpCode[0])), and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])));
-	BIT jr = and_gate(and_gate3(not_gate(OpCode[5]), not_gate(OpCode[4]), not_gate(OpCode[3])), and_gate3(not_gate(OpCode[2]), not_gate(OpCode[1]), not_gate(OpCode[0])));
+	BIT lw = and_gate(and_gate3((OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), (OpCode[5])));
+	BIT sw = and_gate(and_gate3((OpCode[0]), (OpCode[1]), not_gate(OpCode[2])) ,and_gate3((OpCode[3]), not_gate(OpCode[4]), (OpCode[5])));
+	BIT beq = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), (OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT addi = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3((OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT and = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT or = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT add = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT sub = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT j = and_gate(and_gate3(not_gate(OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT jal = and_gate(and_gate3((OpCode[0]), (OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
+	BIT jr = and_gate(and_gate3(not_gate(OpCode[0]), not_gate(OpCode[1]), not_gate(OpCode[2])), and_gate3(not_gate(OpCode[3]), not_gate(OpCode[4]), not_gate(OpCode[5])));
 
 	// assigning all the bit values to each instruction type
 	BIT r_type = or_gate(or_gate(or_gate(add, sub), or_gate(and, or)), jr);
@@ -503,8 +503,8 @@ void ALU_Control(BIT* ALUOp, BIT* funct, BIT* ALUControl){  // curtis
 	BIT a_BIT = and_gate(and_gate3(not_gate(funct[0]), not_gate(funct[1]), not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT s_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
 	BIT o_BIT = and_gate(and_gate3(funct[0], not_gate(funct[1]), funct[2]), and_gate3(not_gate(funct[3]), not_gate(funct[4]), funct[5]));
-  BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
-  //primary gates to produce add, sub, or, and sll
+	BIT sll_BIT = and_gate(and_gate3(not_gate(funct[0]), funct[1], not_gate(funct[2])), and_gate3(funct[3], not_gate(funct[4]), funct[5]));
+  	//primary gates to produce add, sub, or, and sll
 
 	ALUControl[0] = or_gate(sll_BIT, o_BIT);
 	ALUControl[1] = or_gate(or_gate3(a_BIT, s_BIT, sll_BIT), not_gate(ALUOp[1]));
@@ -662,4 +662,3 @@ int main(){
 	}
 	return 0;
 }
-
