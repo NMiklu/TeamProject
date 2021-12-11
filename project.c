@@ -237,50 +237,50 @@ int binary_to_integer(BIT* A){
 // TODO: Implement any helper functions to assist with parsing
 
 void set_register(char* input, char* output){
-	if (strcmp(input, "t0") == 0) strncpy(output, "00010", 5);
-	else if (strcmp(input, "s0") == 0) strncpy(output, "00001", 5);
-  	else if (strcmp(input, "t1") == 0) strncpy(output, "10010", 5);
-	else if (strcmp(input, "s1") == 0) strncpy(output, "10001", 5);
-  	else if (strcmp(input, "zero") == 0) strncpy(output, "00000", 5);
-  	else if (strcmp(input, "v0") == 0) strncpy(output, "01000", 5);
-  	else if (strcmp(input, "a0") == 0) strncpy(output, "00100", 5);
-  	else if (strcmp(input, "sp") == 0) strncpy(output, "10111", 5);
-  	else if (strcmp(input, "ra") == 0) strncpy(output, "11111", 5);
+	if (strcmp(input, "t0") == 0) strcpy(output, "00010");
+	else if (strcmp(input, "s0") == 0) strcpy(output, "00001");
+  	else if (strcmp(input, "t1") == 0) strcpy(output, "10010");
+	else if (strcmp(input, "s1") == 0) strcpy(output, "10001");
+  	else if (strcmp(input, "zero") == 0) strcpy(output, "00000");
+  	else if (strcmp(input, "v0") == 0) strcpy(output, "01000");
+  	else if (strcmp(input, "a0") == 0) strcpy(output, "00100");
+  	else if (strcmp(input, "sp") == 0) strcpy(output, "10111");
+  	else if (strcmp(input, "ra") == 0) strcpy(output, "11111");
 }
 void set_opcode(char* input, char* opcode ,char* funct) {
 	// I-type
-	if (strcmp(input, "lw") == 0) strncpy(opcode, "110001", 6);
-  	else if (strcmp(input, "sw") == 0) strncpy(opcode, "110101", 6);
-  	else if (strcmp(input, "beq") == 0) strncpy(opcode, "001000", 6);
-  	else if (strcmp(input, "addi") == 0) strncpy(opcode, "000100", 6);
+	if (strcmp(input, "lw") == 0) strcpy(opcode, "110001");
+  	else if (strcmp(input, "sw") == 0) strcpy(opcode, "110101");
+  	else if (strcmp(input, "beq") == 0) strcpy(opcode, "001000");
+  	else if (strcmp(input, "addi") == 0) strcpy(opcode, "000100");
   	// R-type
 	else if (strcmp(input, "and") == 0) {
-		strncpy(opcode, "000000", 6);
-		strncpy(funct, "001001", 6);
+		strcpy(opcode, "000000");
+		strcpy(funct, "001001");
   	}
   	else if (strcmp(input, "or") == 0) {
-    	strncpy(opcode, "000000", 6);
-    	strncpy(funct, "101001", 6);
+    	strcpy(opcode, "000000");
+    	strcpy(funct, "101001");
   	}
   	else if (strcmp(input, "add") == 0) {
-    	strncpy(opcode, "000000", 6);
-    	strncpy(funct, "000001", 6);
+    	strcpy(opcode, "000000");
+    	strcpy(funct, "000001");
   	}
   	else if (strcmp(input, "sub") == 0) {
-    	strncpy(opcode, "000000", 6);
-    	strncpy(funct, "010001", 6);
+    	strcpy(opcode, "000000");
+    	strcpy(funct, "010001");
   	}
   	else if (strcmp(input, "slt") == 0) {
-    	strncpy(opcode, "000000", 6);
-    	strncpy(funct, "010101", 6);
+    	strcpy(opcode, "000000");
+    	strcpy(funct, "010101");
   	}
   	else if (strcmp(input, "jr") == 0) {
-    	strncpy(opcode, "000000", 6);
-    	strncpy(funct, "000100", 6);
+    	strcpy(opcode, "000000");
+    	strcpy(funct, "000100");
   	}
   	// J-type
-  	else if (strcmp(input, "j") == 0) strncpy(opcode, "010000", 6);
-  	else if (strcmp(input, "jal") == 0) strncpy(opcode, "110000", 6);
+  	else if (strcmp(input, "j") == 0) strcpy(opcode, "010000");
+  	else if (strcmp(input, "jal") == 0) strcpy(opcode, "110000");
 }
 
 int get_instructions(BIT Instructions[][32]){
@@ -328,9 +328,10 @@ int get_instructions(BIT Instructions[][32]){
       		set_register(op1, rd);
       		set_register(op2, rs);
       		set_register(op3, rt);
+      		char shamt[5] = {'0', '0', '0', '0', '0'};
       		set_opcode(inst, opcode, funct);
       		strncpy(&temp_output[0], funct, 6);
-      		strncpy(&temp_output[6], "00000", 5);
+      		strncpy(&temp_output[6], shamt, 5);
       		strncpy(&temp_output[11], rd, 5);
       		strncpy(&temp_output[16], rt, 5);
       		strncpy(&temp_output[21], rs, 5);
